@@ -1,5 +1,6 @@
 # setup load path
 $:.unshift File.dirname(__FILE__)
+require 'classifier'
 
 # get rid of empty lines and determine type of each row
 def cleanse_attrs data
@@ -10,19 +11,26 @@ def cleanse_attrs data
 
   # determine the type of each attr
   data = data.map do |line|
+    ret = {}
     val = line.strip.gsub(/^.*: /, "").gsub(/\.$/, "").split(/\s+/)
     unless val.index("cont").nil?
-      :to_f
+      ret[:type]   = :cont # continuous
+      ret[:method] = :to_f
     else
-      :to_i
+      ret[:type]   = :disc # discrete
+      ret[:method] = :to_i
+      ret[:values] = val.first.split(",").map do |v|
+        v.to_i
+      end
     end
+    ret
   end
 
   data
 end
 
 # get rid of empty lines and split each row
-def cleanse_data data, attrs
+def cleanse_data data, attr_types
   # get rid of empty lines by filtering
   data = data.select do |line|
     line != ''
@@ -31,7 +39,7 @@ def cleanse_data data, attrs
   # split each row into arrays with map
   data = data.map do |line|
     line.strip.split(/\s+/).each_with_index.map do |el, i|
-      el.send attrs[i]
+      el.send attr_types[i][:method]
     end
   end
 
@@ -47,5 +55,11 @@ training_data = File.read(training_file).split("\n")
 attr_data     = File.read(attr_file).split("\n")
 
 # make the data more usable
-attr_data     = cleanse_attrs attr_data
-training_data = cleanse_data  training_data, attr_data
+attr_types    = cleanse_attrs attr_data
+training_data = cleanse_data  training_data, attr_types
+
+# create classifier
+c = NaiveBayesClassifier.new attr_types[0...-1]
+
+c.train training_data
+c.test "test", training_data
