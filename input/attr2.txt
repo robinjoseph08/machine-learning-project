@@ -1,0 +1,5 @@
+height: cont.
+weight: cont.
+foot: cont.
+handed: 0,1.
+sex: 0,1.
