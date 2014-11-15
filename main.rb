@@ -63,3 +63,4 @@ c = NaiveBayesClassifier.new attr_types[0...-1]
 
 c.train training_data
 c.test "test", training_data
+# c.test "test", [[6.0,130.0,8.0,0,1]]
