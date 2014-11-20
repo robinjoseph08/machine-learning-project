@@ -1,6 +1,6 @@
 # setup load path
 $:.unshift File.dirname(__FILE__)
-require 'classifier'
+require 'nb_classifier'
 
 # get rid of empty lines and determine type of each row
 def cleanse_attrs data
