@@ -9,11 +9,6 @@ class NaiveBayesClassifier
     @classes = [{},{}]
   end
 
-  # reset the classifier
-  def reset
-    @classes = [{},{}]
-  end
-
   # method used to train the classifier
   def train data
     split_data = []
@@ -58,6 +53,11 @@ class NaiveBayesClassifier
   # PRIVATE METHODS
 
   private
+
+  # reset the classifier
+  def reset
+    @classes = [{},{}]
+  end
 
   # count the number of rows of a given data set where a certain index is a certain value
   def counter index, value, data
