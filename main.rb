@@ -61,6 +61,7 @@ training_data = cleanse_data  training_data, attr_types
 # create classifier
 c = NaiveBayesClassifier.new attr_types[0...-1]
 
+puts "NUMBER CORRECT FOR CV:   #{c.cv_train training_data}"
 c.train training_data
-c.test "test", training_data
+puts "NUMBER CORRECT FOR TEST: #{c.test training_data}"
 # c.test "test", [[6.0,130.0,8.0,0,1]]

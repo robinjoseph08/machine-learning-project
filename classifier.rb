@@ -6,10 +6,38 @@ class NaiveBayesClassifier
     @classes = [{},{}]
   end
 
+  # reset the classifier
+  def reset
+    @classes = [{},{}]
+  end
+
+  # cross validation training/testing
+  def cv_train data
+    correct = 0
+
+    data.count.times do |index_to_test|
+      puts "CV PERCENT DONE: #{'%.2f' % ((index_to_test * 100.0)/data.count)}%" if index_to_test % 1000 == 0
+
+      tester = data[index_to_test]
+      rest   = data.clone
+      rest.delete tester
+
+      # reset the classifier
+      reset
+
+      # train it based on the data without the testing point
+      train rest
+
+      # accumulate the number of correct testing sets
+      correct += test [tester]
+    end
+
+    correct
+  end
+
   # method used to train the classifier
-  def train data, percentage_for_validation=0, offset_for_validation=0
-    split_data    = []
-    gaussian_data = []
+  def train data
+    split_data = []
 
     [0,1].each do |i|
       # separate the true data from false data
@@ -36,7 +64,7 @@ class NaiveBayesClassifier
   end
 
   # method used to test the classifier
-  def test name, data
+  def test data
     total = data.length
     # used to count the number of correctly classified sets
     correct = 0
@@ -45,12 +73,7 @@ class NaiveBayesClassifier
       correct += line.last == classify(line[0...-1]) ? 1 : 0
     end
 
-    # compute the accuracy of the classifier
-    accuracy = (correct * 100.0)/total
-
-    # print testing results
-    puts "Accuracy on #{name} set (#{total} instances):  #{'%.1f' % accuracy}%"
-    puts ""
+    correct
   end
 
   # PRIVATE METHODS
