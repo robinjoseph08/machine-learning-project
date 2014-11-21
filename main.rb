@@ -1,6 +1,7 @@
 # setup load path
 $:.unshift File.dirname(__FILE__)
 require 'nb_classifier'
+require 'nn_classifier'
 
 # get rid of empty lines and determine type of each row
 def cleanse_attrs data
@@ -58,10 +59,15 @@ attr_data     = File.read(attr_file).split("\n")
 attr_types    = cleanse_attrs attr_data
 training_data = cleanse_data  training_data, attr_types
 
-# create classifier
-c = NaiveBayesClassifier.new attr_types[0...-1]
+# create classifiers
+cs = []
+cs << NaiveBayesClassifier.new(attr_types[0...-1])
+cs << NearestNeighborClassifier.new(attr_types[0...-1], 1)
+cs << NearestNeighborClassifier.new(attr_types[0...-1], 3)
+cs << NearestNeighborClassifier.new(attr_types[0...-1], 5)
 
-puts "NUMBER CORRECT FOR CV:   #{c.cv_train training_data}"
-c.train training_data
-puts "NUMBER CORRECT FOR TEST: #{c.test training_data}"
-# c.test "test", [[6.0,130.0,8.0,0,1]]
+cs.each_with_index do |c, i|
+  puts "[#{i}] NUMBER CORRECT FOR CV:   #{c.cv_train training_data}"
+  # c.train training_data
+  # puts "[#{i}] NUMBER CORRECT FOR TEST: #{c.test training_data}"
+end
