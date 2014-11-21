@@ -1,4 +1,4 @@
-module CVUnit
+class Classifier
 
   # cross validation training/testing
   def cv_train data
@@ -19,6 +19,19 @@ module CVUnit
 
       # accumulate the number of correct testing sets
       correct += test [tester]
+    end
+
+    correct
+  end
+
+  # method used to test the classifier
+  def test data
+    total = data.length
+    # used to count the number of correctly classified sets
+    correct = 0
+
+    data.each do |line|
+      correct += line.last == classify(line[0...-1]) ? 1 : 0
     end
 
     correct

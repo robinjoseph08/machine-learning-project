@@ -1,7 +1,6 @@
-require "cv_unit"
+require "classifier"
 
-class NaiveBayesClassifier
-  include CVUnit
+class NaiveBayesClassifier < Classifier
 
   # classifier constructor
   def initialize attrs
@@ -35,19 +34,6 @@ class NaiveBayesClassifier
         end
       end
     end
-  end
-
-  # method used to test the classifier
-  def test data
-    total = data.length
-    # used to count the number of correctly classified sets
-    correct = 0
-
-    data.each do |line|
-      correct += line.last == classify(line[0...-1]) ? 1 : 0
-    end
-
-    correct
   end
 
   # PRIVATE METHODS
