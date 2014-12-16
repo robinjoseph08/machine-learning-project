@@ -26,8 +26,7 @@ class NaiveBayesClassifier < Classifier
       @attrs.each_with_index do |attr, j|
         @classes[i][:attrs][j] = []
         # determine probability based on if it's continuous or discrete
-        if attr[:type] == :cont
-        else
+        if attr[:type] == :disc
           attr[:values].each do |k|
             @classes[i][:attrs][j][k] = counter(j, k, split_data[i]).to_f/split_data[i].length
           end
@@ -36,14 +35,31 @@ class NaiveBayesClassifier < Classifier
     end
   end
 
+  # method used to test the classifier
+  def test name, data
+    total = data.length
+    # used to count the number of correctly classified sets
+    correct = 0
+
+    data.each do |line|
+      correct += line.last == classify(line[0...-1]) ? 1 : 0
+    end
+
+    # compute the accuracy of the classifier
+    accuracy = (correct * 100.0)/total
+
+    # print testing results
+    puts "Accuracy on #{name} set (#{total} instances):  #{'%.3f' % accuracy}%"
+    puts ""
+  end
+
   # given an array of attribute values, use the Naive Bayes Algorithm to classify the data
   def classify line
     probs = [@classes[0][:prob], @classes[1][:prob]]
 
     @classes.each_with_index do |klass, i|
       @attrs.each_with_index do |attr, j|
-        if attr[:type] == :cont
-        else
+        if attr[:type] == :disc
           probs[i] *= klass[:attrs][j][line[j]]
         end
       end

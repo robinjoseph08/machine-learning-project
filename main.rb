@@ -14,10 +14,7 @@ def cleanse_attrs data
   data = data.map do |line|
     ret = {}
     val = line.strip.gsub(/^.*: /, "").gsub(/\.$/, "").split(/\s+/)
-    unless val.index("cont").nil?
-      ret[:type]   = :cont # continuous
-      ret[:method] = :to_f
-    else
+    if val.index("cont").nil?
       ret[:type]   = :disc # discrete
       ret[:method] = :to_i
       ret[:values] = val.first.split(",").map do |v|
@@ -40,7 +37,9 @@ def cleanse_data data, attr_types
   # split each row into arrays with map
   data = data.map do |line|
     line.strip.split(/\s+/).each_with_index.map do |el, i|
-      el.send attr_types[i][:method]
+      if attr_types[i][:type] == :disc
+        el.to_i
+      end
     end
   end
 
@@ -51,6 +50,7 @@ end
 training_file = ARGV.shift
 attr_file     = ARGV.shift
 test_file     = ARGV.shift
+with_labels   = ARGV.shift == "--with-labels"
 
 # read the training and attribute data
 training_data = File.read(training_file).split("\n")
@@ -66,11 +66,21 @@ test_data     = cleanse_data  test_data, attr_types if test_file
 c = NaiveBayesClassifier.new(attr_types[0...-1])
 
 unless test_file
+  # just doing cross-validation
   puts "ACCURACY FOR CV: #{'%.2f' % (((c.cv_train training_data) * 100.0)/training_data.count)}%"
 else
+  # we have a test file
   c.train training_data
 
-  test_data.each do |line|
-    puts c.classify line
+  if with_labels
+    # finding the accuracy of the classifier against the test data
+    puts ""
+    c.test "training", training_data
+    c.test "test",     test_data
+  else
+    # finding labels of the test data
+    test_data.each do |line|
+      puts c.classify line
+    end
   end
 end
