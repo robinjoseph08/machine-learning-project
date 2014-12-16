@@ -50,24 +50,27 @@ end
 # get the passed in arguments
 training_file = ARGV.shift
 attr_file     = ARGV.shift
+test_file     = ARGV.shift
 
 # read the training and attribute data
 training_data = File.read(training_file).split("\n")
 attr_data     = File.read(attr_file).split("\n")
+test_data     = File.read(test_file).split("\n") if test_file
 
 # make the data more usable
 attr_types    = cleanse_attrs attr_data
 training_data = cleanse_data  training_data, attr_types
+test_data     = cleanse_data  test_data, attr_types if test_file
 
-# create classifiers
-cs = []
-cs << NaiveBayesClassifier.new(attr_types[0...-1])
-cs << NearestNeighborClassifier.new(attr_types[0...-1], 1)
-cs << NearestNeighborClassifier.new(attr_types[0...-1], 3)
-cs << NearestNeighborClassifier.new(attr_types[0...-1], 5)
+# create classifier
+c = NaiveBayesClassifier.new(attr_types[0...-1])
 
-cs.each_with_index do |c, i|
-  puts "[#{i}] NUMBER CORRECT FOR CV:   #{c.cv_train training_data}"
-  # c.train training_data
-  # puts "[#{i}] NUMBER CORRECT FOR TEST: #{c.test training_data}"
+unless test_file
+  puts "ACCURACY FOR CV: #{'%.2f' % (((c.cv_train training_data) * 100.0)/training_data.count)}%"
+else
+  c.train training_data
+
+  test_data.each do |line|
+    puts c.classify line
+  end
 end

@@ -36,22 +36,6 @@ class NaiveBayesClassifier < Classifier
     end
   end
 
-  # PRIVATE METHODS
-
-  private
-
-  # reset the classifier
-  def reset
-    @classes = [{},{}]
-  end
-
-  # count the number of rows of a given data set where a certain index is a certain value
-  def counter index, value, data
-    data.inject(0) do |total, line|
-      line[index] == value ? total + 1 : total
-    end
-  end
-
   # given an array of attribute values, use the Naive Bayes Algorithm to classify the data
   def classify line
     probs = [@classes[0][:prob], @classes[1][:prob]]
@@ -66,6 +50,22 @@ class NaiveBayesClassifier < Classifier
     end
 
     probs[0] > probs[1] ? 0 : 1
+  end
+
+  # PRIVATE METHODS
+
+  private
+
+  # reset the classifier
+  def reset
+    @classes = [{},{}]
+  end
+
+  # count the number of rows of a given data set where a certain index is a certain value
+  def counter index, value, data
+    data.inject(0) do |total, line|
+      line[index] == value ? total + 1 : total
+    end
   end
 
 end
